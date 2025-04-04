@@ -4,7 +4,7 @@
             "title": "Understanding AI Memory-Based Data Exfiltration Attacks",
             "description": "A technical deep dive into memory-based data exfiltration attacks in AI systems, demonstrating how attackers can manipulate AI memory to steal sensitive information.",
             "date": "2024-04-04",
-            "file": "article_1"
+            "file": "article_1.md"
         }
     ]
 } 
