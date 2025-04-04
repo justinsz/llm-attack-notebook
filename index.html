@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM Security Blog</title>
+    <title>fledd.io</title>
+    <!-- Add marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&display=swap');
         
@@ -12,6 +14,7 @@
             --text-color: #333333;
             --cursor-color: #333333;
             --link-color: #0066cc;
+            --hover-bg: #e6e6cc;
         }
         
         body {
@@ -26,13 +29,26 @@
         }
         
         .typewriter {
-            overflow: hidden;
-            border-right: 2px solid var(--cursor-color);
-            white-space: nowrap;
+            position: relative;
             margin: 0 auto;
-            animation: 
-                typing 3.5s steps(40, end),
-                blink-caret .75s step-end infinite;
+            color: var(--text-color);
+        }
+        
+        .typewriter::before {
+            content: '|';
+            position: absolute;
+            left: -1ch;
+            animation: blink-caret .75s step-end infinite;
+            color: var(--cursor-color);
+        }
+        
+        .typewriter-text {
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 2.5s steps(30, end);
+            font-family: 'Source Code Pro', monospace;
+            font-weight: 600;
         }
         
         @keyframes typing {
@@ -41,13 +57,27 @@
         }
         
         @keyframes blink-caret {
-            from, to { border-color: transparent }
-            50% { border-color: var(--cursor-color) }
+            from, to { opacity: 0 }
+            50% { opacity: 1 }
+        }
+        
+        @keyframes unravel {
+            from {
+                max-height: 0;
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                max-height: none;
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         h1 {
             font-size: 2.5rem;
             margin-bottom: 2rem;
+            color: var(--text-color);
         }
         
         .article-list {
@@ -68,14 +98,23 @@
             color: var(--text-color);
             text-decoration: none;
             display: block;
-            padding: 1rem;
+            padding: 1.5rem;
             border: 1px solid var(--text-color);
+            border-radius: 4px 4px 0 0;
             transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
         }
         
         .article-link:hover {
-            background-color: var(--text-color);
-            color: var(--bg-color);
+            background-color: var(--hover-bg);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .article-link h2 {
+            margin-top: 0;
+            color: var(--text-color);
         }
         
         .article-date {
@@ -84,27 +123,173 @@
             margin-top: 0.5rem;
         }
         
+        .article-content {
+            display: none;
+            padding: 2rem;
+            overflow: visible;
+            max-width: 100%;
+            box-sizing: border-box;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 0 0 4px 4px;
+            margin-top: -1px;
+            border: 1px solid var(--text-color);
+        }
+        
+        .article-content.active {
+            display: block;
+            animation: unravel 1s ease-out forwards;
+        }
+        
+        .article-content pre {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .article-content code {
+            font-family: 'Source Code Pro', monospace;
+            max-width: 100%;
+        }
+        
+        /* Style for terminal/file content blocks */
+        .file-content {
+            background-color: #f8f8f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .file-content pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+
+        /* Style for the file header */
+        .file-header {
+            background-color: #eaeae0;
+            padding: 0.5rem 1rem;
+            margin: -1rem -1rem 1rem -1rem;
+            border-bottom: 1px solid #ddd;
+            border-radius: 4px 4px 0 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Style for inline code */
+        code:not(pre code) {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Style for blockquotes */
+        blockquote {
+            border-left: 3px solid #ddd;
+            margin: 1rem 0;
+            padding-left: 1rem;
+            color: #666;
+        }
+        
         footer {
             margin-top: 3rem;
             text-align: center;
             font-size: 0.8rem;
             color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 1rem;
         }
 
         footer a {
             color: var(--link-color);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #d32f2f;
+            padding: 1rem;
+            border: 1px solid #d32f2f;
+            border-radius: 4px;
+            background-color: rgba(211, 47, 47, 0.1);
+            margin: 1rem 0;
+        }
+
+        .intro-section {
+            margin: 2rem 0 3rem 0;
+            padding: 2rem;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 4px;
+            border: 1px solid var(--text-color);
+            line-height: 1.8;
+        }
+
+        .intro-section p {
+            margin: 1.2rem 0;
+            font-size: 1.1rem;
+        }
+
+        .intro-section p:first-child {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .intro-section em {
+            font-style: normal;
+            color: #d63384;
+            font-weight: 500;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--text-color), transparent);
+            margin: 3rem 0;
+        }
+
+        .article-link.expanded {
+            border-radius: 4px 4px 0 0;
+            border-bottom: none;
         }
     </style>
 </head>
 <body>
-    <h1 class="typewriter">LLM Security Blog</h1>
+    <h1>
+        <div class="typewriter">
+            <span class="typewriter-text">fledd.io</span>
+        </div>
+    </h1>
+    
+    <div class="intro-section">
+        <p>Welcome to <em>fledd.io</em> — a blog dedicated to the offensive security of Large Language Models.</p>
+        
+        <p>This space explores the evolving attack surface of LLMs through empirical testing, adversarial prompt engineering, and systematic vulnerability analysis. From prompt injection and jailbreak persistence to latent behavior extraction and alignment circumvention, we document methods to probe, manipulate, and exploit LLM behaviors under various threat models.</p>
+        
+        <p>Each post aims to contribute to a deeper technical understanding of how these models generalize, where their boundaries leak, and what that means for security-critical deployments in the wild.</p>
+        
+        <p>Hands-on demonstrations and code samples are provided to illustrate attack vectors and surface misalignment phenomena — all intended for responsible research and defensive development.</p>
+    </div>
+
+    <div class="divider"></div>
     
     <div class="article-list" id="articleList">
         <!-- Articles will be loaded here dynamically -->
     </div>
     
     <footer>
-        <p>© 2024 Justin Sz. All content licensed under <a href="LICENSE" style="color: var(--text-color);">CC BY 4.0</a></p>
+        <p>© 2025 <a href="https://github.com/justinsz">Justin Sz</a>. All content licensed under <a href="LICENSE">CC BY 4.0</a></p>
     </footer>
 
     <script>
@@ -113,28 +298,84 @@
             const articleList = document.getElementById('articleList');
             
             try {
-                // Fetch the list of articles (you'll need to implement this)
                 const response = await fetch('articles.json');
-                const articles = await response.json();
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                const articles = data.articles;
                 
+                if (!articles || articles.length === 0) {
+                    throw new Error('No articles found');
+                }
+
                 articles.forEach((article, index) => {
                     const articleItem = document.createElement('div');
                     articleItem.className = 'article-item';
                     articleItem.style.animationDelay = `${index * 0.2}s`;
                     
+                    const articleContent = document.createElement('div');
+                    articleContent.className = 'article-content';
+                    
                     articleItem.innerHTML = `
-                        <a href="${article.file}" class="article-link">
+                        <div class="article-link">
                             <h2>${article.title}</h2>
                             <p>${article.description}</p>
                             <div class="article-date">${article.date}</div>
-                        </a>
+                        </div>
                     `;
                     
+                    articleItem.appendChild(articleContent);
                     articleList.appendChild(articleItem);
+                    
+                    // Add click event to load and display article content
+                    const articleLink = articleItem.querySelector('.article-link');
+                    articleLink.addEventListener('click', async () => {
+                        if (!articleContent.classList.contains('active')) {
+                            try {
+                                const contentResponse = await fetch(article.file);
+                                if (!contentResponse.ok) {
+                                    throw new Error('Failed to load article content');
+                                }
+                                const markdown = await contentResponse.text();
+                                const processedMarkdown = markdown.replace(
+                                    /```(\w+:\S+)?\s*([\s\S]*?)```/g, 
+                                    (match, header, content) => {
+                                        if (header) {
+                                            return `<div class="file-content">
+                                                <div class="file-header">${header}</div>
+                                                <pre><code>${content.trim()}</code></pre>
+                                            </div>`;
+                                        }
+                                        return `<pre><code>${content.trim()}</code></pre>`;
+                                    }
+                                );
+                                articleContent.innerHTML = marked.parse(processedMarkdown);
+                                articleContent.classList.add('active');
+                                articleLink.classList.add('expanded');
+                            } catch (error) {
+                                articleContent.innerHTML = `
+                                    <div class="error-message">
+                                        <p>Error loading article content. Please try again later.</p>
+                                        <p>Details: ${error.message}</p>
+                                    </div>
+                                `;
+                                articleContent.classList.add('active');
+                            }
+                        } else {
+                            articleContent.classList.remove('active');
+                            articleLink.classList.remove('expanded');
+                        }
+                    });
                 });
             } catch (error) {
                 console.error('Error loading articles:', error);
-                articleList.innerHTML = '<p>Error loading articles. Please try again later.</p>';
+                articleList.innerHTML = `
+                    <div class="error-message">
+                        <p>Error loading articles. Please try again later.</p>
+                        <p>Details: ${error.message}</p>
+                    </div>
+                `;
             }
         }
         
