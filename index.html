@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Security Blog</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&display=swap');
+        
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #00ff00;
+            --cursor-color: #00ff00;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Source Code Pro', monospace;
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .typewriter {
+            overflow: hidden;
+            border-right: 2px solid var(--cursor-color);
+            white-space: nowrap;
+            margin: 0 auto;
+            animation: 
+                typing 3.5s steps(40, end),
+                blink-caret .75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--cursor-color) }
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .article-list {
+            margin-top: 2rem;
+        }
+        
+        .article-item {
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeIn 1s ease-in forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        .article-link {
+            color: var(--text-color);
+            text-decoration: none;
+            display: block;
+            padding: 1rem;
+            border: 1px solid var(--text-color);
+            transition: all 0.3s ease;
+        }
+        
+        .article-link:hover {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+        
+        .article-date {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="typewriter">LLM Security Blog</h1>
+    
+    <div class="article-list" id="articleList">
+        <!-- Articles will be loaded here dynamically -->
+    </div>
+    
+    <footer>
+        <p>© 2024 Justin Sz. All content licensed under <a href="LICENSE" style="color: var(--text-color);">CC BY 4.0</a></p>
+    </footer>
+
+    <script>
+        // Function to load and display articles
+        async function loadArticles() {
+            const articleList = document.getElementById('articleList');
+            
+            try {
+                // Fetch the list of articles (you'll need to implement this)
+                const response = await fetch('articles.json');
+                const articles = await response.json();
+                
+                articles.forEach((article, index) => {
+                    const articleItem = document.createElement('div');
+                    articleItem.className = 'article-item';
+                    articleItem.style.animationDelay = `${index * 0.2}s`;
+                    
+                    articleItem.innerHTML = `
+                        <a href="${article.file}" class="article-link">
+                            <h2>${article.title}</h2>
+                            <p>${article.description}</p>
+                            <div class="article-date">${article.date}</div>
+                        </a>
+                    `;
+                    
+                    articleList.appendChild(articleItem);
+                });
+            } catch (error) {
+                console.error('Error loading articles:', error);
+                articleList.innerHTML = '<p>Error loading articles. Please try again later.</p>';
+            }
+        }
+        
+        // Load articles when the page loads
+        document.addEventListener('DOMContentLoaded', loadArticles);
+    </script>
+</body>
+</html> 
