@@ -313,6 +313,8 @@
                     const articleItem = document.createElement('div');
                     articleItem.className = 'article-item';
                     articleItem.style.animationDelay = `${index * 0.2}s`;
+                    // Add an ID based on the article file name
+                    articleItem.id = article.file.replace('.md', '');
                     
                     const articleContent = document.createElement('div');
                     articleContent.className = 'article-content';
@@ -320,8 +322,9 @@
                     articleItem.innerHTML = `
                         <div class="article-link">
                             <h2>${article.title}</h2>
-                            <p>${article.description}</p>
-                            <div class="article-date">${article.date}</div>
+                            <div class="article-meta">
+                                <span class="date">${article.date}</span>
+                            </div>
                         </div>
                     `;
                     
@@ -330,7 +333,7 @@
                     
                     // Add click event to load and display article content
                     const articleLink = articleItem.querySelector('.article-link');
-                    articleLink.addEventListener('click', async () => {
+                    const toggleArticle = async () => {
                         if (!articleContent.classList.contains('active')) {
                             try {
                                 const contentResponse = await fetch(article.file);
@@ -353,6 +356,23 @@
                                 articleContent.innerHTML = marked.parse(processedMarkdown);
                                 articleContent.classList.add('active');
                                 articleLink.classList.add('expanded');
+
+                                // Add click handlers to internal article links
+                                articleContent.querySelectorAll('a[href^="#"]').forEach(link => {
+                                    link.addEventListener('click', (e) => {
+                                        e.preventDefault();
+                                        const targetId = link.getAttribute('href').substring(1);
+                                        const targetArticle = document.getElementById(targetId);
+                                        if (targetArticle) {
+                                            targetArticle.scrollIntoView({ behavior: 'smooth' });
+                                            const targetLink = targetArticle.querySelector('.article-link');
+                                            const targetContent = targetArticle.querySelector('.article-content');
+                                            if (!targetContent.classList.contains('active')) {
+                                                targetLink.click();
+                                            }
+                                        }
+                                    });
+                                });
                             } catch (error) {
                                 articleContent.innerHTML = `
                                     <div class="error-message">
@@ -366,7 +386,17 @@
                             articleContent.classList.remove('active');
                             articleLink.classList.remove('expanded');
                         }
-                    });
+                    };
+                    
+                    articleLink.addEventListener('click', toggleArticle);
+
+                    // Check if this article is referenced in the URL hash
+                    if (window.location.hash === `#${articleItem.id}`) {
+                        setTimeout(() => {
+                            articleItem.scrollIntoView({ behavior: 'smooth' });
+                            toggleArticle();
+                        }, 500);
+                    }
                 });
             } catch (error) {
                 console.error('Error loading articles:', error);

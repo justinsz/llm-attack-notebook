@@ -1,9 +1,15 @@
 {
     "articles": [
         {
+            "title": "Understanding AI Firewalls: A Technical Deep Dive",
+            "description": "An in-depth exploration of AI Firewalls, their role in protecting LLMs from adversarial inputs, and a critical assessment of their effectiveness.",
+            "date": "2025-04-09",
+            "file": "article_2.md"
+        },
+        {
             "title": "Understanding AI Memory-Based Data Exfiltration Attacks",
             "description": "A technical deep dive into memory-based data exfiltration attacks in AI systems, demonstrating how attackers can manipulate AI memory to steal sensitive information.",
-            "date": "2024-04-04",
+            "date": "2025-04-04",
             "file": "article_1.md"
         }
     ]
